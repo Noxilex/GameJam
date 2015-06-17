@@ -11,12 +11,10 @@ import entities.Porte;
 
 public class Level {
 
-	protected int sol = 420;
+	protected int sol = 423;
 	protected BufferedImage bg;
 	protected int posBg;
-	//Fait
 	protected Personnage hero;
-	//
 	protected List<Mob> listeMob;
 	protected List<Obstacle> listeObstacle;
 	protected Porte inPorte;
@@ -26,6 +24,71 @@ public class Level {
 		hero = p;
 		listeMob = new ArrayList<Mob>();
 		listeObstacle = new ArrayList<Obstacle>();
+	}
+	
+	/**
+	 * Met à jour la position des élément du niveau (en fonction du background)
+	 */
+	public void update(){
+		for(Mob mob: listeMob){
+			mob.setLocation((int)(mob.getInitX())+posBg, (int)mob.getY());
+		}
+		for(Obstacle obstacle: listeObstacle){
+			obstacle.setLocation((int)(obstacle.getInitX())+posBg, (int)obstacle.getY());
+		}
+
+		inPorte.setLocation((int)(inPorte.getInitX())+posBg, (int)inPorte.getY());
+		outPorte.setLocation((int)(outPorte.getInitX())+posBg, (int)outPorte.getY());
+	}
+	
+	public boolean intersectPorteDown(){
+		if(hero.intersects(inPorte)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean intersectPorteUp(){
+		if(hero.intersects(outPorte)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean doMobsIntersects(){
+		if(listeMobIntersects().isEmpty())
+			return false;
+		else
+			return true;
+	}
+	
+	public List<Mob> listeMobIntersects(){
+		List<Mob> mobs = new ArrayList<Mob>();
+		for(Mob mob: getListeMob()){
+			if(hero.intersects(mob)){
+				mobs.add(mob);
+			}
+		}
+		return mobs;
+	}
+	
+	public boolean doObstaclesIntersects(){
+		if(listeObstaclesIntersects().isEmpty())
+			return false;
+		else
+			return true;
+	}
+	
+	public List<Obstacle> listeObstaclesIntersects(){
+		List<Obstacle> obstacles = new ArrayList<Obstacle>();
+		for(Obstacle obstacle: getListeObstacle()){
+			if(hero.intersects(obstacle)){
+				obstacles.add(obstacle);
+			}
+		}
+		return obstacles;
 	}
 	
 	public BufferedImage getBackground(){
@@ -56,7 +119,7 @@ public class Level {
 		return posBg;
 	}
 
-	public void setPosImg(int posBg) {
+	public void setPosBg(int posBg) {
 		this.posBg = posBg;
 	}
 	

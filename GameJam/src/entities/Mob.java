@@ -10,13 +10,15 @@ public class Mob extends Rectangle{
 	private String type;
 	
 	//Coordonnées
-	private int x;
-	private int y;
+	private int iniTx;
+	private int iniTy;
 	
 	private int degats;
 	
 	public Mob(String type, int x, int y, int largeur, int hauteur){
 		super(x, y-hauteur, largeur, hauteur);
+		iniTx = x;
+		iniTy = y;
 		this.type = type;
 		
 		if(type == "faible")
@@ -32,6 +34,8 @@ public class Mob extends Rectangle{
 	public Mob(String type, int x, int y, BufferedImage img){
 		super(x, y-img.getHeight(), img.getWidth(), img.getHeight());
 		this.type = type;
+		iniTx = x;
+		iniTy = y;
 		
 		if(type == "faible")
 			degats = 3;
@@ -58,5 +62,14 @@ public class Mob extends Rectangle{
 	public String getType() {
 		return type;
 	}
+
+	public int getInitX() {
+		return iniTx;
+	}
+
+	public int getInitY() {
+		return iniTy;
+	}
+	
 	
 }

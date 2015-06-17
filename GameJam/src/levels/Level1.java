@@ -28,8 +28,8 @@ public class Level1 extends Level{
 		
 		int largMob = 20;
 		int hautMob = 20;
-		Mob mob1 = new Mob("facile", 200+posBg, sol, largMob, hautMob);
-		Mob mob2 = new Mob("moyen", 300+posBg, sol, largMob, hautMob);
+		Mob mob1 = new Mob("facile", 200, sol, largMob, hautMob);
+		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
 		
 		listeMob.add(mob1);
 		listeMob.add(mob2);
@@ -39,7 +39,7 @@ public class Level1 extends Level{
 		listeObstacle.add(obs1);
 		
 		inPorte = new Porte("in", 325, sol, 120, 140);
-		outPorte = new Porte("out", 1000, sol, 100, 200);
+		outPorte = new Porte("out", 1750, sol, 120, 140);
 		
 		p.setLocation(250, (int)(sol-p.getHeight()));
 		
