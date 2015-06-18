@@ -18,7 +18,9 @@ import levels.Level1;
 import levels.Level2;
 import levels.Level3;
 import levels.Level4;
+import miscellanous.SonAmbiance;
 import miscellanous.SonCoup;
+import miscellanous.SonFight;
 import miscellanous.SonSaut;
 import entities.Mob;
 import entities.Obstacle;
@@ -30,14 +32,7 @@ import entities.Personnage;
 public class Panel extends JPanel implements Runnable{
 
 	private BufferedImage bg1;
-	
-	private BufferedImage left_fixe;
-	private BufferedImage left_move1;
-	private BufferedImage left_move2;
-	
-	private BufferedImage right_fixe;
-	private BufferedImage right_move1;
-	private BufferedImage right_move2;
+
 	/*
 	private BufferedImage up_fixe;
 	private BufferedImage up_move1;
@@ -55,8 +50,11 @@ public class Panel extends JPanel implements Runnable{
 	private boolean bas;
 	private boolean enAir = false;
 	private boolean tombe = false;
+	private boolean etatHasChanged;
 	
+	private SonFight sf = new SonFight();
 	private SonSaut s = new SonSaut();
+	private SonAmbiance sa = new SonAmbiance();
 	
 	private int taillePersonnage = 90;
 	private int hauteurSaut = 50+taillePersonnage;
@@ -69,6 +67,8 @@ public class Panel extends JPanel implements Runnable{
 	
 	private int x = xInit;
 	private int y = sol;
+	
+	private int posYInitSaut;
 	
 	private Personnage p;
 	
@@ -91,29 +91,14 @@ public class Panel extends JPanel implements Runnable{
 	private KeyMap m = new KeyMap();
 	
 	public Panel(String nomJoueur){
+
 		File f = null;
 		try{
 			f = new File("img/bg1.png");
 			bg1 = ImageIO.read(f);
-			
-			f = new File("img/Tera/left_fixe.png");
-			left_fixe = ImageIO.read(f);
-			f = new File("img/Tera/left_move1.png");
-			left_move1 = ImageIO.read(f);
-			f = new File("img/Tera/left_move2.png");
-			left_move2 = ImageIO.read(f);
-			
-			f = new File("img/Tera/right_fixe.png");
-			right_fixe = ImageIO.read(f);
-			f = new File("img/Tera/right_move1.png");
-			right_move1 = ImageIO.read(f);
-			f = new File("img/Tera/right_move2.png");
-			right_move2 = ImageIO.read(f);
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
 		setPreferredSize(new Dimension(700, 500));
 		addKeyListener(m);
 		
@@ -135,12 +120,14 @@ public class Panel extends JPanel implements Runnable{
 		level2 = new Level2(p);
 		level3 = new Level3(p);
 		level4 = new Level4(p);
+		lvlActuel = level1;
 	}
 	
 	private void start(){
 		etat = 1;
-		running = true;
 		resetLevels();
+		running = true;
+		sa.jouerEnBoucle();
 		thread = new Thread(this);
 		thread.start();
 	}
@@ -156,22 +143,27 @@ public class Panel extends JPanel implements Runnable{
 	 * Met à jour le contenu des niveaux (Level)
 	 */
 	private void update(){
-		switch(etat){
-			case(1):
-				lvlActuel = level1;
-				break;
-			case(2):
-				lvlActuel = level2;
-				break;
-			case(3):
-				lvlActuel = level3;
-				break;
-			case(4):
-				lvlActuel = level4;
-				break;
-			default:
-				lvlActuel = level1;
+		if(etatHasChanged){
+			switch(etat){
+				case(1):
+					lvlActuel = level1;
+					break;
+				case(2):
+					lvlActuel = level2;
+					break;
+				case(3):
+					lvlActuel = level3;
+					break;
+				case(4):
+					lvlActuel = level4;
+					break;
+				default:
+					lvlActuel = level1;
+			}
+			etatHasChanged = false;
 		}
+		
+
 		
 		//On verifie que le carre n'a pas atteint le sol
 		if(lvlActuel.getHero().getY()+lvlActuel.getHero().getHeight() >= lvlActuel.getSol()) {
@@ -179,10 +171,11 @@ public class Panel extends JPanel implements Runnable{
 			tombe = false;
 			hauteurPersonnage = 0;
 		}
-		
-		//Si le carre est en l'air et qu'il tombe, on le fait tomber
-		if(enAir && tombe) 
+			
+			
+		if(enAir && tombe) {
 			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY()+6);
+		}
 		
 		//Droite et gauche sont en dehors du else pour permettre le air-movement
 		
@@ -201,19 +194,25 @@ public class Panel extends JPanel implements Runnable{
 				lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse, (int)lvlActuel.getHero().getY());
 		}
 		
-		if(haut && hauteurPersonnage < hauteurSaut && !tombe){
+		if(!(enAir || tombe))
+			posYInitSaut = (int)lvlActuel.getHero().getY();
+		
+		if(haut && posYInitSaut-hauteurPersonnage > posYInitSaut-hauteurSaut && !tombe){
+			System.out.println("Saute");
 			enAir = true;
 			hauteurPersonnage += 6;
+			System.out.println(hauteurPersonnage);
+			System.out.println(hauteurSaut);
 			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY()-6);
 		}else{
 			tombe = true;
 		}
 		
 		if(lvlActuel.doMobsIntersects()){
-			new SonCoup().jouer();
-			lvlActuel.getHero().subit(10);
+			//new SonCoup().jouer();
 			
 			for(Mob mob : lvlActuel.getListeMob()){
+				lvlActuel.getHero().subit(mob.getDegats());
 				if(mob.getX() < lvlActuel.getHero().getX()){
 					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*10, (int)lvlActuel.getHero().getY()-vitesse*10);
 					enAir = true;
@@ -226,12 +225,28 @@ public class Panel extends JPanel implements Runnable{
 				}
 			}
 		}
+		
+		if(lvlActuel.doObstaclesIntersects()){
+			for(Obstacle obstacle : lvlActuel.listeObstaclesIntersects()){
+				//Si le perso est au dessus de la plateforme, il marche dessus
+
+				if((inside(lvlActuel.getHero().getX(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())
+							|| inside(lvlActuel.getHero().getX()+lvlActuel.getHero().getWidth(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())) 
+							&& lvlActuel.getHero().getY()<=obstacle.getY()-obstacle.getHeight()){
+						lvlActuel.setSol((int)(obstacle.getY()));
+				}
+			}
+		}else if(lvlActuel.getSol() != lvlActuel.getInitSol()){
+			lvlActuel.setSol(lvlActuel.getInitSol());
+			enAir = true;
+		}
+		
 		//On peut appuyer sur bas pour redescendre au sol
 		if(bas){
 			enAir = false;
 			tombe = false;
 			
-			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)(lvlActuel.getSol()-lvlActuel.getHero().getHeight()));
+			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)(lvlActuel.getInitSol()-lvlActuel.getHero().getHeight()));
 			
 			if(lvlActuel.doMobsIntersects()){
 				System.out.println(lvlActuel.listeMobIntersects());
@@ -243,15 +258,21 @@ public class Panel extends JPanel implements Runnable{
 			if(lvlActuel.intersectPorteDown() && etat > 1){
 				//TODO Position d'arrivée dans le niveau
 				etat--;
+				etatHasChanged = true;
 				System.out.println("Porte Down");
 			}
 			//Si l'on appuie sur bas lorsqu'on est sur l'escalier de droite, on monte d'un étage
 			if(lvlActuel.intersectPorteUp() && etat < 4){
 				etat++;
+				etatHasChanged = true;
 				System.out.println("Porte Up");
 			}
 		}
 		lvlActuel.update();
+	}
+	
+	private boolean inside(double nb, double first, double last){
+		return nb > first && nb < last;
 	}
 	
 	private void render(){
@@ -313,86 +334,94 @@ public class Panel extends JPanel implements Runnable{
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 					
-		//Dessin du background
-		g.drawImage(lvlActuel.getBackground(), lvlActuel.getPosBg(), 0, 2000, 500, null, null);
-				
-		//Dessin du nom de l'étage
-		g.setColor(Color.BLACK);
-		g.fillRect(getWidth()/4*2+80, 0, getWidth()/2, 50);
-		g.setColor(Color.WHITE);
-		g.setFont(new Font("Times New Roman", 1, 30));
-		g.drawString(lvlActuel.getNomLevel(), getWidth()/3*2, 35);
-		
-		//Dessin des PVs
-		g.setColor(Color.WHITE);
-		g.drawRect(30-1, 25-1, 2*lvlActuel.getHero().getVieMax()+1, 20+2);
-		g.setColor(Color.RED);
-		g.fillRect(30, 25, 2*lvlActuel.getHero().getVie(), 20);
-		
-		g.setColor(Color.WHITE);
-		g.setFont(new Font("Times New Roman", 1, 15));
-		g.drawString(lvlActuel.getHero().getVie() + "/" + lvlActuel.getHero().getVieMax(), 30, 20);
-		
-		//Dessin des obstacles : Carres Bleus
-		for(Obstacle o : lvlActuel.getListeObstacle()){
-			g.setColor(Color.BLUE);
-			g.fillRect((int)o.getX(), (int)o.getY(), (int)o.getWidth(), (int)o.getHeight());
-		}
-						
-		//Dessin des mobs : Carres Rouges
-		for(Mob m : lvlActuel.getListeMob()){
+		if(lvlActuel.getHero().isAlive()){
+			//Dessin du background
+			g.drawImage(lvlActuel.getBackground(), lvlActuel.getPosBg(), 0, 2000, 500, null, null);
+					
+			//Dessin du nom de l'étage
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), 70);
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Times New Roman", 1, 30));
+			g.drawString(lvlActuel.getNomLevel(), getWidth()/3*2, 35);
+			
+			//Dessin des PVs
+			g.setColor(Color.WHITE);
+			g.drawRect(30-1, 25-1, 2*lvlActuel.getHero().getVieMax()+1, 20+2);
 			g.setColor(Color.RED);
-			g.fillRect((int)m.getX(), (int)m.getY(), (int)m.getWidth(), (int)m.getHeight());
-		}
-		
-		//Dessin des portes : Carres Noir (vides)
-		g.setColor(Color.BLACK);
-		g.drawRect((int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY(), (int)lvlActuel.getInPorte().getWidth(), (int)lvlActuel.getInPorte().getHeight());
-		g.drawRect((int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY(), (int)lvlActuel.getOutPorte().getWidth(), (int)lvlActuel.getOutPorte().getHeight());
-						
-		//g.drawRect(325+level1.getPosBg(), level1.getSol(), 120, 140);
-						
-		//g.fillRect(100, 420, 50, 5);
+			g.fillRect(30, 25, 2*lvlActuel.getHero().getVie(), 20);
 			
-		if(moving()){
-			cpt = (cpt+1)%11;
-			if(cpt == 10)
-				imgActuelle = (imgActuelle+1)%4;
-			}else{
-				imgActuelle = 0;
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Times New Roman", 1, 15));
+			g.drawString(lvlActuel.getHero().getVie() + "/" + lvlActuel.getHero().getVieMax(), 30, 20);
+			
+			//Dessin des obstacles : Carres Bleus
+			for(Obstacle o : lvlActuel.getListeObstacle()){
+				g.setColor(Color.BLUE);
+				g.fillRect((int)o.getX(), (int)o.getY(), (int)o.getWidth(), (int)o.getHeight());
+			}
+							
+			//Dessin des mobs : Carres Rouges
+			for(Mob m : lvlActuel.getListeMob()){
+				g.setColor(Color.RED);
+				g.fillRect((int)m.getX(), (int)m.getY(), (int)m.getWidth(), (int)m.getHeight());
 			}
 			
-			int lastKey = m.getLastDirection();
-			
-			if(lastKey == KeyEvent.VK_RIGHT){
+			//Dessin des portes : Carres Noir (vides)
+			g.setColor(Color.BLACK);
+			g.drawRect((int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY(), (int)lvlActuel.getInPorte().getWidth(), (int)lvlActuel.getInPorte().getHeight());
+			g.drawRect((int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY(), (int)lvlActuel.getOutPorte().getWidth(), (int)lvlActuel.getOutPorte().getHeight());
+							
+			//g.drawRect(325+level1.getPosBg(), level1.getSol(), 120, 140);
+							
+			//g.fillRect(100, 420, 50, 5);
 				
-			if(!enAir){
-				if(imgActuelle == 0 || imgActuelle == 2){
-					g.drawImage(right_fixe, (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
-				}else if(imgActuelle == 1){
-					g.drawImage(right_move1, (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
-				}else if(imgActuelle == 3){	
-					g.drawImage(right_move2, (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+			if(moving()){
+				cpt = (cpt+1)%11;
+				if(cpt == 10)
+					imgActuelle = (imgActuelle+1)%4;
+				}else{
+					imgActuelle = 0;
 				}
-			}else{
-				//TODO Image de Saut droite
-				g.drawImage(right_move1,(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
-			}
+				
+				int lastKey = m.getLastDirection();
+				
+				if(lastKey == KeyEvent.VK_RIGHT){
 					
-		} else if(lastKey == KeyEvent.VK_LEFT){
-			if(!enAir){
-				if(imgActuelle == 0 || imgActuelle == 2){
-					g.drawImage(left_fixe, (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
-				}else if(imgActuelle == 1){
-					g.drawImage(left_move1,(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
-				}else if(imgActuelle == 3){	
-					g.drawImage(left_move2,(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+				if(!enAir){
+					if(imgActuelle == 0 || imgActuelle == 2){
+						g.drawImage(lvlActuel.getHero().getRight_fixe(), (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}else if(imgActuelle == 1){
+						g.drawImage(lvlActuel.getHero().getRight_move1(), (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}else if(imgActuelle == 3){	
+						g.drawImage(lvlActuel.getHero().getRight_move2(), (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}
+				}else{
+					//TODO Image de Saut droite
+					g.drawImage(lvlActuel.getHero().getRight_move1(),(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
 				}
-			}else{
-				//TODO Image de Saut gauche
-					
-					g.drawImage(left_move1,(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+						
+			} else if(lastKey == KeyEvent.VK_LEFT){
+				if(!enAir){
+					if(imgActuelle == 0 || imgActuelle == 2){
+						g.drawImage(lvlActuel.getHero().getLeft_fixe(), (int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}else if(imgActuelle == 1){
+						g.drawImage(lvlActuel.getHero().getLeft_move1(),(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}else if(imgActuelle == 3){	
+						g.drawImage(lvlActuel.getHero().getLeft_move2(),(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+					}
+				}else{
+					//TODO Image de Saut gauche
+						
+						g.drawImage(lvlActuel.getHero().getLeft_move1(),(int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY(), (int)lvlActuel.getHero().getHeight()/2, (int)lvlActuel.getHero().getHeight(), null, null);
+				}
 			}
+		}else{
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Times New Roman", 1, 40));
+			g.drawString("GAME OVER", getWidth()/4+50, getHeight()/2);
 		}
 	}
 		/*g.setColor(Color.WHITE);
@@ -402,16 +431,23 @@ public class Panel extends JPanel implements Runnable{
 	public void run() {
 
 		while(running){
-			handleControl();
-			update();
-			//playSound();
-			render();
+			if(lvlActuel.getHero().isAlive()){
+				handleControl();
+				update();
+				//playSound();
+				render();
+			}else{
+				running = false;
+			}
 			try {
 				Thread.sleep(1000/FPS);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		sa.arreter();
+		render();
+		sf.jouer();
 	}
 }	
 

@@ -9,7 +9,7 @@ public class Obstacle extends Rectangle{
 	private int iniTy;
 	
 	public Obstacle(int x, int y, int largeur, int hauteur){
-		super(x, y-hauteur, largeur, hauteur);
+		super(x, y, largeur, hauteur);
 		iniTx = x;
 		iniTy = y;
 	}

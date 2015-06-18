@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.ZoneView;
+
 import entities.Mob;
 import entities.Obstacle;
 import entities.Personnage;
@@ -11,6 +13,7 @@ import entities.Porte;
 
 public class Level {
 
+	protected final int initSol = 423;
 	protected int sol = 423;
 	protected BufferedImage bg;
 	protected int posBg;
@@ -33,8 +36,13 @@ public class Level {
 	 */
 	public void update(){
 		for(Mob mob: listeMob){
-			mob.move(hero);
-			mob.setLocation((int)(mob.getInitX())+posBg+mob.getMove(), (int)mob.getY());
+			mob.setScrollInitX((int)mob.getInitX()+posBg);
+			if(mob.isPlayerNear(hero)){
+				mob.move(hero);
+			}else{
+				mob.ronde();
+			}
+			mob.setLocation((int)(mob.getScrollInitX()+mob.getMove()), (int)mob.getY());
 		}
 		for(Obstacle obstacle: listeObstacle){
 			obstacle.setLocation((int)(obstacle.getInitX())+posBg, (int)obstacle.getY());
@@ -132,6 +140,15 @@ public class Level {
 	
 	public String getNomLevel(){
 		return nomLevel;
+	}
+
+	public void setSol(int sol) {
+		// TODO Auto-generated method stub
+		this.sol = sol;
+	}
+	
+	public int getInitSol() {
+		return initSol;
 	}
 	
 }

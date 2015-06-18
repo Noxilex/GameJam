@@ -25,13 +25,9 @@ public class Level2 extends Level{
 
 		posBg = 0;
 		
-		int largMob = 20;
-		int hautMob = 20;
-		Mob mob1 = new Mob("facile", 200, sol, largMob, hautMob);
-		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
+		Mob mob1 = new Mob("difficile", 600, sol);
 		
 		listeMob.add(mob1);
-		listeMob.add(mob2);
 		
 		Obstacle obs1 = new Obstacle(80, sol, 10, 80);
 		
