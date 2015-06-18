@@ -18,6 +18,7 @@ import levels.Level1;
 import levels.Level2;
 import levels.Level3;
 import levels.Level4;
+import miscellanous.SonCoup;
 import miscellanous.SonSaut;
 import entities.Mob;
 import entities.Obstacle;
@@ -209,6 +210,7 @@ public class Panel extends JPanel implements Runnable{
 		}
 		
 		if(lvlActuel.doMobsIntersects()){
+			new SonCoup().jouer();
 			lvlActuel.getHero().subit(10);
 			
 			for(Mob mob : lvlActuel.getListeMob()){
