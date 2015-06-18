@@ -3,6 +3,8 @@ package entities;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import main.Panel;
+
 public class Mob extends Rectangle{
 
 	private BufferedImage img;
@@ -12,6 +14,9 @@ public class Mob extends Rectangle{
 	//Coordonnées
 	private int iniTx;
 	private int iniTy;
+	
+	//Deplacement
+	private int xDep = 0;
 	
 	private int degats;
 	
@@ -71,5 +76,15 @@ public class Mob extends Rectangle{
 		return iniTy;
 	}
 	
+	public int getMove(){
+		return xDep;
+	}
 	
+	public void move(Personnage p){
+		if(getX() < p.getX()){
+			xDep += Panel.vitesse/2;
+		}else{
+			xDep -= Panel.vitesse/2;
+		}
+	}
 }

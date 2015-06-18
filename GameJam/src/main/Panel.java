@@ -2,6 +2,7 @@ package main;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -83,8 +84,8 @@ public class Panel extends JPanel implements Runnable{
 	
 	private Thread thread;
 	
-	private final int FPS = 60;
-	private int vitesse = 300/FPS;
+	public static final int FPS = 60;
+	public static int vitesse = 300/FPS;
 	
 	private KeyMap m = new KeyMap();
 	
@@ -206,6 +207,23 @@ public class Panel extends JPanel implements Runnable{
 		}else{
 			tombe = true;
 		}
+		
+		if(lvlActuel.doMobsIntersects()){
+			lvlActuel.getHero().subit(10);
+			
+			for(Mob mob : lvlActuel.getListeMob()){
+				if(mob.getX() < lvlActuel.getHero().getX()){
+					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*10, (int)lvlActuel.getHero().getY()-vitesse*10);
+					enAir = true;
+					tombe = true;
+				}
+				else{
+					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()-vitesse*10, (int)lvlActuel.getHero().getY()-vitesse*10);
+					enAir = true;
+					tombe = true;
+				}
+			}
+		}
 		//On peut appuyer sur bas pour redescendre au sol
 		if(bas){
 			enAir = false;
@@ -231,10 +249,7 @@ public class Panel extends JPanel implements Runnable{
 				System.out.println("Porte Up");
 			}
 		}
-		
-		if(moving()){
-			lvlActuel.update();
-		}
+		lvlActuel.update();
 	}
 	
 	private void render(){
@@ -298,7 +313,24 @@ public class Panel extends JPanel implements Runnable{
 					
 		//Dessin du background
 		g.drawImage(lvlActuel.getBackground(), lvlActuel.getPosBg(), 0, 2000, 500, null, null);
-						
+				
+		//Dessin du nom de l'étage
+		g.setColor(Color.BLACK);
+		g.fillRect(getWidth()/4*2+80, 0, getWidth()/2, 50);
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("Times New Roman", 1, 30));
+		g.drawString(lvlActuel.getNomLevel(), getWidth()/3*2, 35);
+		
+		//Dessin des PVs
+		g.setColor(Color.WHITE);
+		g.drawRect(30-1, 25-1, 2*lvlActuel.getHero().getVieMax()+1, 20+2);
+		g.setColor(Color.RED);
+		g.fillRect(30, 25, 2*lvlActuel.getHero().getVie(), 20);
+		
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("Times New Roman", 1, 15));
+		g.drawString(lvlActuel.getHero().getVie() + "/" + lvlActuel.getHero().getVieMax(), 30, 20);
+		
 		//Dessin des obstacles : Carres Bleus
 		for(Obstacle o : lvlActuel.getListeObstacle()){
 			g.setColor(Color.BLUE);
@@ -328,7 +360,7 @@ public class Panel extends JPanel implements Runnable{
 				imgActuelle = 0;
 			}
 			
-			int lastKey = m.getLastEvent();
+			int lastKey = m.getLastDirection();
 			
 			if(lastKey == KeyEvent.VK_RIGHT){
 				

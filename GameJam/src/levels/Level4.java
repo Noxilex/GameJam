@@ -13,9 +13,9 @@ import entities.Porte;
 public class Level4 extends Level {
 
 	public Level4(Personnage p){
-		super(p);
+		super("Etage 4", p);
 		
-		File f = new File("img/bg1.png");
+		File f = new File("img/bg4.png");
 		try {
 			bg = ImageIO.read(f);
 		} catch (IOException e) {

@@ -70,7 +70,7 @@ public class KeyMap implements KeyListener{
 		return bas;
 	}
 	
-	public int getLastEvent(){
+	public int getLastDirection(){
 		return lastDirection;
 	}
 

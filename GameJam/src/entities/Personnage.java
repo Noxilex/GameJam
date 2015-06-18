@@ -7,6 +7,8 @@ public class Personnage extends Rectangle{
 	
 	private BufferedImage img;
 	
+	private int vieMax;
+	private int vie;
 	private String nom;
 	
 	//Coordonnées
@@ -18,6 +20,8 @@ public class Personnage extends Rectangle{
 	public Personnage(String nom, int x, int y, int largeur, int hauteur){
 		super(x, y-hauteur, largeur, hauteur);
 		this.nom = nom;
+		vieMax = 100;
+		vie = vieMax;
 	}
 
 	public int getDegats() {
@@ -34,5 +38,17 @@ public class Personnage extends Rectangle{
 
 	public String getNom() {
 		return nom;
+	}
+	
+	public int getVieMax(){
+		return vieMax;
+	}
+	
+	public void subit(int degats){
+		vie -= degats;
+	}
+	
+	public int getVie(){
+		return vie;
 	}
 }

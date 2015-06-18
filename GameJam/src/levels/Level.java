@@ -19,8 +19,10 @@ public class Level {
 	protected List<Obstacle> listeObstacle;
 	protected Porte inPorte;
 	protected Porte outPorte;
+	protected String nomLevel;
 	
-	public Level(Personnage p){
+	public Level(String nomLevel, Personnage p){
+		this.nomLevel = nomLevel;
 		hero = p;
 		listeMob = new ArrayList<Mob>();
 		listeObstacle = new ArrayList<Obstacle>();
@@ -31,7 +33,8 @@ public class Level {
 	 */
 	public void update(){
 		for(Mob mob: listeMob){
-			mob.setLocation((int)(mob.getInitX())+posBg, (int)mob.getY());
+			mob.move(hero);
+			mob.setLocation((int)(mob.getInitX())+posBg+mob.getMove(), (int)mob.getY());
 		}
 		for(Obstacle obstacle: listeObstacle){
 			obstacle.setLocation((int)(obstacle.getInitX())+posBg, (int)obstacle.getY());
@@ -125,6 +128,10 @@ public class Level {
 	
 	public Personnage getHero(){
 		return hero;
+	}
+	
+	public String getNomLevel(){
+		return nomLevel;
 	}
 	
 }

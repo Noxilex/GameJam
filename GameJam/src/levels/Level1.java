@@ -14,7 +14,7 @@ import entities.Porte;
 public class Level1 extends Level{
 	
 	public Level1(Personnage p){
-		super(p);
+		super("Rez-De-Chaussée", p);
 		
 		File f = new File("img/bg1.png");
 		try {
@@ -29,10 +29,8 @@ public class Level1 extends Level{
 		int largMob = 20;
 		int hautMob = 20;
 		Mob mob1 = new Mob("facile", 200, sol, largMob, hautMob);
-		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
 		
 		listeMob.add(mob1);
-		listeMob.add(mob2);
 		
 		Obstacle obs1 = new Obstacle(80, sol, 10, 80);
 		
