@@ -27,7 +27,7 @@ public class Level4 extends Level {
 		
 		int largMob = 20;
 		int hautMob = 20;
-		Mob mob1 = new Mob("facile", 200, sol, largMob, hautMob);
+		Mob mob1 = new Mob("faible", 200, sol, largMob, hautMob);
 		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
 		
 		listeMob.add(mob1);

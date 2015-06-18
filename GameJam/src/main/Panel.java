@@ -214,12 +214,12 @@ public class Panel extends JPanel implements Runnable{
 			for(Mob mob : lvlActuel.getListeMob()){
 				lvlActuel.getHero().subit(mob.getDegats());
 				if(mob.getX() < lvlActuel.getHero().getX()){
-					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*10, (int)lvlActuel.getHero().getY()-vitesse*10);
+					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
 					enAir = true;
 					tombe = true;
 				}
 				else{
-					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()-vitesse*10, (int)lvlActuel.getHero().getY()-vitesse*10);
+					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()-vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
 					enAir = true;
 					tombe = true;
 				}

@@ -37,12 +37,13 @@ public class Level {
 	public void update(){
 		for(Mob mob: listeMob){
 			mob.setScrollInitX((int)mob.getInitX()+posBg);
-			if(mob.isPlayerNear(hero)){
+			/*if(mob.isPlayerNear(hero)){
 				mob.move(hero);
 			}else{
 				mob.ronde();
-			}
-			mob.setLocation((int)(mob.getScrollInitX()+mob.getMove()), (int)mob.getY());
+			}*/
+			if(mob.isMovable())
+				mob.ronde();
 		}
 		for(Obstacle obstacle: listeObstacle){
 			obstacle.setLocation((int)(obstacle.getInitX())+posBg, (int)obstacle.getY());

@@ -11,6 +11,8 @@ public class Mob extends Rectangle{
 	
 	private String type;
 	
+	protected String direction;
+	
 	//Coordonnées
 	private int initX;
 	private int initY;
@@ -36,12 +38,16 @@ public class Mob extends Rectangle{
 	private int distAggro;
 	
 	//Distance de ses rondes (zone de déplacement)
-	private int ronde = 50;
+	protected int ronde = 50;
 	
 	private int degats;
+
+	private boolean movable;
 	
-	public Mob(String type, int x, int y){
+	public Mob(String type, String direction, int x, int y, int ronde){
 		super(x, y-0, 0, 0);
+		movable = true;
+		
 		if(type == "faible")
 			taille = 20;
 		else if(type == "moyen")
@@ -54,9 +60,12 @@ public class Mob extends Rectangle{
 		super.height = taille;
 		super.width = taille;
 		super.setLocation(x, y-height);
+		
 		initX = x;
 		initY = y;
+		this.direction = direction;
 		this.type = type;
+		this.ronde = ronde;
 		
 		if(type == "faible"){
 			degats = 3;
@@ -131,14 +140,14 @@ public class Mob extends Rectangle{
 			distAggro = 50;
 		}
 		else if(type == "moyen"){
-			degats = 4;
+			degats = 6;
 			dep = Panel.vitesse/3*2;
 			depMove = Panel.vitesse/3*2;
 			depRonde = Panel.vitesse/3*2;
 			distAggro = 100;
 		}
 		else if(type == "difficile"){
-			degats = 5;
+			degats = 10;
 			dep = Panel.vitesse/4*3;
 			depMove = Panel.vitesse/4*3;
 			depRonde = Panel.vitesse/4*3;
@@ -146,6 +155,11 @@ public class Mob extends Rectangle{
 		}
 		else
 			degats = 0;
+	}
+
+	public Mob(int degats, int x, int y, int largeur) {
+		// TODO Auto-generated constructor stub
+		movable = false;
 	}
 
 	public boolean isPlayerNear(Personnage p){
@@ -189,12 +203,25 @@ public class Mob extends Rectangle{
 	}
 	
 	public void ronde(){
-		if(getX() <= scrollInitX-ronde){
-			depRonde = Math.abs(depRonde);
-		}else if (getX() >= scrollInitX+ronde){
-			depRonde = Math.abs(depRonde)*(-1);
+		if(direction == "horizontale"){
+			if(getX() <= scrollInitX-ronde){
+				depRonde = Math.abs(depRonde);
+			}else if (getX() >= scrollInitX+ronde){
+				depRonde = Math.abs(depRonde)*(-1);
+			}
+			xDep += depRonde;
+			setLocation((int)getScrollInitX()+getMove(), (int)getY());
+		}else{
+			if(getY() <= initY-ronde){
+				depRonde = Math.abs(depRonde);
+			}else if (getY() >= initY+ronde){
+				depRonde = Math.abs(depRonde)*(-1);
+			}
+			xDep += depRonde;
+			setLocation((int)getScrollInitX(), initY+getMove());
 		}
-		xDep += depRonde;
+		
+		
 	}
 
 	public boolean isInRonde(){
@@ -211,5 +238,10 @@ public class Mob extends Rectangle{
 		}else{
 			xDep -= depMove;
 		}
+	}
+
+	public boolean isMovable() {
+		// TODO Auto-generated method stub
+		return movable;
 	}
 }

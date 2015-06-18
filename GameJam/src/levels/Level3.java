@@ -25,13 +25,13 @@ public class Level3 extends Level{
 
 		posBg = 0;
 		
-		int largMob = 20;
-		int hautMob = 20;
-		Mob mob1 = new Mob("facile", 200, sol, largMob, hautMob);
-		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
+		Mob mob1 = new Mob(10, 200, sol, initSol);
+		Mob mob2 = new Mob(10, 300, sol, initSol);
+		Mob mob3 = new Mob(10, 400, sol, initSol);
 		
 		listeMob.add(mob1);
 		listeMob.add(mob2);
+		listeMob.add(mob3);
 		
 		Obstacle obs1 = new Obstacle(80, sol, 10, 80);
 		
