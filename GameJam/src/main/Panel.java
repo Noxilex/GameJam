@@ -92,6 +92,10 @@ public class Panel extends JPanel implements Runnable{
 	private boolean etageMonte;
 
 	private boolean etageDescendu;
+
+	private BufferedImage sourisBas;
+
+	private BufferedImage sourisHaut;
 	
 	public Panel(String nomJoueur){
 
@@ -99,6 +103,10 @@ public class Panel extends JPanel implements Runnable{
 		try{
 			f = new File("img/bg1.png");
 			bg1 = ImageIO.read(f);
+			f = new File("img/Clavier_FlecheBas.gif");
+			sourisBas = ImageIO.read(f);
+			f = new File("img/Clavier_FlecheHaut.gif");
+			sourisHaut = ImageIO.read(f);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -159,8 +167,6 @@ public class Panel extends JPanel implements Runnable{
 					break;
 				case(4):
 					lvlActuel = level4;
-					limiteDroite=0;
-					limiteGauche=-1300;
 					break;
 				default:
 					lvlActuel = level1;
@@ -236,20 +242,27 @@ public class Panel extends JPanel implements Runnable{
 		}
 		
 		if(lvlActuel.doMobsIntersects()){
-			//new SonCoup().jouer();
 			
 			for(Mob mob : lvlActuel.getListeMob()){
-				lvlActuel.getHero().subit(mob.getDegats());
-				if(mob.getX() < lvlActuel.getHero().getX()){
-					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
-					enAir = true;
-					tombe = true;
+				if(!lvlActuel.getHero().isInvinsible()){
+					//new SonCoup().jouer();
+					lvlActuel.getHero().subit(mob.getDegats());
+					lvlActuel.getHero().setInvinsibility(10);
+					if(mob.getX() < lvlActuel.getHero().getX()){
+						lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()+vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
+						enAir = true;
+						tombe = true;
+					}
+					else{
+						lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()-vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
+						enAir = true;
+						tombe = true;
+					}
 				}
 				else{
-					lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX()-vitesse*mob.getDegats(), (int)lvlActuel.getHero().getY()-vitesse*mob.getDegats());
-					enAir = true;
-					tombe = true;
+					lvlActuel.getHero().setInvinsibility(lvlActuel.getHero().getInvinsibility()-1);
 				}
+
 			}
 		}
 		
@@ -369,6 +382,7 @@ public class Panel extends JPanel implements Runnable{
 			for(Obstacle o : lvlActuel.getListeObstacle()){
 				g.setColor(Color.BLUE);
 				g.fillRect((int)o.getX(), (int)o.getY(), (int)o.getWidth(), (int)o.getHeight());
+				g.drawImage(o.getImg(), (int)o.getX(), (int)o.getY(), (int)o.getWidth(), (int)o.getHeight(), null, null);
 			}
 							
 			//Dessin des mobs : Carres Rouges
@@ -382,7 +396,36 @@ public class Panel extends JPanel implements Runnable{
 			g.setColor(Color.BLACK);
 			g.drawRect((int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY(), (int)lvlActuel.getInPorte().getWidth(), (int)lvlActuel.getInPorte().getHeight());
 			g.drawRect((int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY(), (int)lvlActuel.getOutPorte().getWidth(), (int)lvlActuel.getOutPorte().getHeight());
-							
+						
+			
+			if(lvlActuel.getHero().intersects(lvlActuel.getOutPorte())){
+				g.setColor(Color.BLACK);
+				int taillePolice = 20;
+				g.setFont(new Font("Times New Roman", 1, taillePolice));
+				g.fillRect((int)lvlActuel.getOutPorte().getX()-10, (int)lvlActuel.getOutPorte().getY()-(taillePolice+15), (int)lvlActuel.getOutPorte().getWidth()+35, taillePolice+20);
+				g.setColor(Color.WHITE);
+				if(etat != 3){
+					g.drawString("Etage Supérieur",(int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY()-10);
+					g.drawImage(sourisBas, (int)lvlActuel.getOutPorte().getX()-10+(int)(lvlActuel.getOutPorte().getWidth()+35), (int)lvlActuel.getOutPorte().getY()-(taillePolice+15), taillePolice+20, taillePolice+20, null, null);
+				}else{
+					g.drawString("BOSS ROOM",(int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY()-10);
+					g.drawImage(sourisBas, (int)lvlActuel.getOutPorte().getX()-10+(int)(lvlActuel.getOutPorte().getWidth()+35), (int)lvlActuel.getOutPorte().getY()-(taillePolice+15), taillePolice+20, taillePolice+20, null, null);
+				
+				}
+			} else if(lvlActuel.getHero().intersects(lvlActuel.getInPorte())){
+				g.setColor(Color.BLACK);
+				int taillePolice = 20;
+				g.setFont(new Font("Times New Roman", 1, taillePolice));
+				g.fillRect((int)lvlActuel.getInPorte().getX()-10, (int)lvlActuel.getInPorte().getY()-(taillePolice+15), (int)lvlActuel.getInPorte().getWidth()+35, taillePolice+20);
+				g.setColor(Color.WHITE);
+				if(etat != 1){
+					g.drawString("Etage Inférieur",(int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY()-10);
+					g.drawImage(sourisBas, (int)lvlActuel.getInPorte().getX()-10+(int)(lvlActuel.getInPorte().getWidth()+35), (int)lvlActuel.getInPorte().getY()-(taillePolice+15), taillePolice+20, taillePolice+20, null, null);
+				}else{
+					g.drawString("Etage Condamné",(int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY()-10);
+				}
+			}
+				
 			//g.drawRect(325+level1.getPosBg(), level1.getSol(), 120, 140);
 							
 			//g.fillRect(100, 420, 50, 5);

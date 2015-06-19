@@ -25,6 +25,7 @@ public class Personnage extends Rectangle{
 	private int y;
 	
 	private int degats;
+	private int invinsibility;
 	
 	public Personnage(String nom, int x, int y, int largeur, int hauteur){
 		super(x, y-hauteur, largeur, hauteur);
@@ -106,5 +107,20 @@ public class Personnage extends Rectangle{
 	public boolean isAlive() {
 		// TODO Auto-generated method stub
 		return vie>0;
+	}
+
+	public int getInvinsibility() {
+		// TODO Auto-generated method stub
+		return invinsibility;
+	}
+
+	public void setInvinsibility(int force) {
+		// TODO Auto-generated method stub
+		invinsibility = force;
+	}
+
+	public boolean isInvinsible() {
+		// TODO Auto-generated method stub
+		return invinsibility > 0;
 	}
 }

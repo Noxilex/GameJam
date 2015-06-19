@@ -40,13 +40,15 @@ public class Level {
 
 			if(mob.isAlive()){
 				if(mob.isPlayerNear(hero)){
+					System.out.println("Chase");
 					mob.move(hero);
 				}else{
+					System.out.println("Ronde");
 					mob.ronde();
 				}
-			}
-			if(mob.isMovable())
+			}else if(mob.isMovable() && !mob.isAlive()){
 				mob.ronde();
+			}
 		}
 		for(Obstacle obstacle: listeObstacle){
 			obstacle.setLocation((int)(obstacle.getInitX())+posBg, (int)obstacle.getY());

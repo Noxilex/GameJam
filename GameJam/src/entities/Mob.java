@@ -42,6 +42,8 @@ public class Mob extends Rectangle{
 	private boolean movable;
 
 	private BufferedImage plante;
+
+	private int yDep;
 	
 	public Mob(String type, String direction, int x, int y, int ronde){
 		super(x, y-0, 0, 0);
@@ -118,6 +120,7 @@ public class Mob extends Rectangle{
 		initX = x;
 		initY = y;
 		this.type = type;
+		direction = "absolue";
 		
 		ronde = 50;
 		vie = 40;
@@ -130,18 +133,25 @@ public class Mob extends Rectangle{
 			distAggro = 50;
 		}
 		else if(type == "moyen"){
-			degats = 4;
+			degats = 6;
 			dep = Panel.vitesse/3*2;
 			depMove = Panel.vitesse/3*2;
 			depRonde = Panel.vitesse/3*2;
 			distAggro = 100;
 		}
 		else if(type == "difficile"){
-			degats = 5;
+			degats = 15;
 			dep = Panel.vitesse/4*3;
 			depMove = Panel.vitesse/4*3;
 			depRonde = Panel.vitesse/4*3;
 			distAggro = 200;
+		}
+		else if(type == "boss"){
+			degats = 20;
+			dep = Panel.vitesse/3*2;
+			depMove = Panel.vitesse/3*2;
+			depRonde = Panel.vitesse/3*2;
+			distAggro = 360;
 		}
 		else
 			degats = 0;
@@ -263,7 +273,7 @@ public class Mob extends Rectangle{
 			}
 			xDep += depRonde;
 			setLocation((int)getScrollInitX()+getMove(), (int)getY());
-		}else{
+		}else if(direction == "verticale"){
 			if(getY() <= initY-ronde){
 				depRonde = Math.abs(depRonde);
 			}else if (getY() >= initY+ronde){
@@ -271,6 +281,20 @@ public class Mob extends Rectangle{
 			}
 			xDep += depRonde;
 			setLocation((int)getScrollInitX(), initY+getMove());
+		}else if(direction == "absolue"){
+			if(getX() <= scrollInitX-ronde){
+				depRonde = Math.abs(depRonde);
+			}else if (getX() >= scrollInitX+ronde){
+				depRonde = Math.abs(depRonde)*(-1);
+			}
+			xDep += depRonde;
+			if(getY() <= initY-ronde){
+				depRonde = Math.abs(depRonde);
+			}else if (getY() >= initY+ronde){
+				depRonde = Math.abs(depRonde)*(-1);
+			}
+			yDep += depRonde;
+			setLocation((int)getScrollInitX()+xDep, initY+yDep);
 		}
 		
 		
@@ -285,11 +309,20 @@ public class Mob extends Rectangle{
 	}
 	
 	public void move(Personnage p){
-		if(getX() < p.getX()){
+		if(getX()< p.getX()){
 			xDep += depMove;
 		}else{
 			xDep -= depMove;
 		}
+		
+		if(getY()< p.getY()){
+			yDep ++;
+		}else if(getY()> p.getY()){
+			yDep --;
+		}else{
+			
+		}
+		setLocation((int)getScrollInitX()+xDep, initY+yDep);
 	}
 
 	public boolean isMovable() {
