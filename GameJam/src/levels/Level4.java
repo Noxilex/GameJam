@@ -25,17 +25,12 @@ public class Level4 extends Level {
 
 		posBg = 0;
 		
-		int largMob = 20;
-		int hautMob = 20;
-		Mob mob1 = new Mob("faible", 200, sol, largMob, hautMob);
-		Mob mob2 = new Mob("moyen", 300, sol, largMob, hautMob);
+		int largMob = 40;
+		int hautMob = 40;
+		Mob mob1 = new Mob("difficile", 200, sol, largMob, hautMob);
 		
 		listeMob.add(mob1);
-		listeMob.add(mob2);
 		
-		Obstacle obs1 = new Obstacle(80, sol, 10, 80);
-		
-		listeObstacle.add(obs1);
 		
 		inPorte = new Porte("in", 325, sol, 120, 140);
 		outPorte = new Porte("out", 1750, sol, 120, 140);

@@ -50,14 +50,13 @@ public class Panel extends JPanel implements Runnable{
 	private boolean bas;
 	private boolean enAir = false;
 	private boolean tombe = false;
-	private boolean etatHasChanged;
 	
 	private SonFight sf = new SonFight();
 	private SonSaut s = new SonSaut();
 	private SonAmbiance sa = new SonAmbiance();
 	
 	private int taillePersonnage = 90;
-	private int hauteurSaut = 50+taillePersonnage;
+	private int hauteurSaut = taillePersonnage+10;
 	
 	private int cpt = 0;
 	private int imgActuelle = 0;
@@ -89,6 +88,10 @@ public class Panel extends JPanel implements Runnable{
 	public static int vitesse = 300/FPS;
 	
 	private KeyMap m = new KeyMap();
+
+	private boolean etageMonte;
+
+	private boolean etageDescendu;
 	
 	public Panel(String nomJoueur){
 
@@ -143,7 +146,7 @@ public class Panel extends JPanel implements Runnable{
 	 * Met à jour le contenu des niveaux (Level)
 	 */
 	private void update(){
-		if(etatHasChanged){
+		if(etageMonte || etageDescendu){
 			switch(etat){
 				case(1):
 					lvlActuel = level1;
@@ -156,11 +159,19 @@ public class Panel extends JPanel implements Runnable{
 					break;
 				case(4):
 					lvlActuel = level4;
+					limiteDroite=0;
+					limiteGauche=-1300;
 					break;
 				default:
 					lvlActuel = level1;
 			}
-			etatHasChanged = false;
+			if(etageMonte)
+				lvlActuel.getHero().setLocation((int)(lvlActuel.getInPorte().getInitX()+lvlActuel.getInPorte().getWidth()+1), (int)lvlActuel.getInPorte().getY());
+			else{
+				lvlActuel.getHero().setLocation((int)(lvlActuel.getOutPorte().getX()-lvlActuel.getHero().getWidth()-1), (int)lvlActuel.getOutPorte().getY());
+			}
+			etageMonte = false;
+			etageDescendu = false;
 		}
 		
 
@@ -177,6 +188,25 @@ public class Panel extends JPanel implements Runnable{
 			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY()+6);
 		}
 		
+		if(lvlActuel.doObstaclesIntersects()){
+			
+			for(Obstacle obstacle : lvlActuel.listeObstaclesIntersects()){
+				//Si le perso est au dessus de la plateforme, il marche dessus
+				if((inside(lvlActuel.getHero().getX(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())
+							|| inside(lvlActuel.getHero().getX()+lvlActuel.getHero().getWidth(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())
+							|| (lvlActuel.getHero().getX() < obstacle.getX() && (lvlActuel.getHero().getX()+lvlActuel.getHero().getWidth()) > obstacle.getX()+obstacle.getWidth())) 
+							&& lvlActuel.getHero().getY()<=obstacle.getY()-obstacle.getHeight()){
+						lvlActuel.setSol((int)(obstacle.getY()));
+				}else if(obstacle.getX()+obstacle.getWidth()/2>=lvlActuel.getHero().getX()+lvlActuel.getHero().getWidth()){
+					lvlActuel.getHero().setLocation((int)(obstacle.getX()-lvlActuel.getHero().getWidth()-1), (int)lvlActuel.getHero().getY());
+				}else if(obstacle.getX()+obstacle.getWidth()/2<lvlActuel.getHero().getX()){
+					lvlActuel.getHero().setLocation((int)(obstacle.getX()+obstacle.getWidth()+1), (int)lvlActuel.getHero().getY());
+				}
+			}
+		}else if(lvlActuel.getSol() != lvlActuel.getInitSol()){
+			lvlActuel.setSol(lvlActuel.getInitSol());
+			enAir = true;
+		}
 		//Droite et gauche sont en dehors du else pour permettre le air-movement
 		
 		if(gauche){
@@ -198,11 +228,8 @@ public class Panel extends JPanel implements Runnable{
 			posYInitSaut = (int)lvlActuel.getHero().getY();
 		
 		if(haut && posYInitSaut-hauteurPersonnage > posYInitSaut-hauteurSaut && !tombe){
-			System.out.println("Saute");
 			enAir = true;
 			hauteurPersonnage += 6;
-			System.out.println(hauteurPersonnage);
-			System.out.println(hauteurSaut);
 			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)lvlActuel.getHero().getY()-6);
 		}else{
 			tombe = true;
@@ -226,45 +253,25 @@ public class Panel extends JPanel implements Runnable{
 			}
 		}
 		
-		if(lvlActuel.doObstaclesIntersects()){
-			for(Obstacle obstacle : lvlActuel.listeObstaclesIntersects()){
-				//Si le perso est au dessus de la plateforme, il marche dessus
-
-				if((inside(lvlActuel.getHero().getX(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())
-							|| inside(lvlActuel.getHero().getX()+lvlActuel.getHero().getWidth(), obstacle.getX(), obstacle.getX()+obstacle.getWidth())) 
-							&& lvlActuel.getHero().getY()<=obstacle.getY()-obstacle.getHeight()){
-						lvlActuel.setSol((int)(obstacle.getY()));
-				}
-			}
-		}else if(lvlActuel.getSol() != lvlActuel.getInitSol()){
-			lvlActuel.setSol(lvlActuel.getInitSol());
-			enAir = true;
-		}
-		
 		//On peut appuyer sur bas pour redescendre au sol
 		if(bas){
-			enAir = false;
-			tombe = false;
+			enAir = true;
+			tombe = true;
 			
-			lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)(lvlActuel.getInitSol()-lvlActuel.getHero().getHeight()));
+			if(lvlActuel.getHero().getY()<lvlActuel.getInitSol()-lvlActuel.getHero().getHeight())
+				lvlActuel.getHero().setLocation((int)lvlActuel.getHero().getX(), (int)(lvlActuel.getHero().getY()+vitesse));
 			
-			if(lvlActuel.doMobsIntersects()){
-				System.out.println(lvlActuel.listeMobIntersects());
-			}
-			if(lvlActuel.doObstaclesIntersects()){
-				System.out.println(lvlActuel.listeObstaclesIntersects());
-			}
 			//Si l'on appuie sur bas lorsqu'on est sur l'escalier de gauche, on descend d'un étage
 			if(lvlActuel.intersectPorteDown() && etat > 1){
 				//TODO Position d'arrivée dans le niveau
 				etat--;
-				etatHasChanged = true;
+				etageDescendu = true;
 				System.out.println("Porte Down");
 			}
 			//Si l'on appuie sur bas lorsqu'on est sur l'escalier de droite, on monte d'un étage
 			if(lvlActuel.intersectPorteUp() && etat < 4){
 				etat++;
-				etatHasChanged = true;
+				etageMonte = true;
 				System.out.println("Porte Up");
 			}
 		}
@@ -336,7 +343,10 @@ public class Panel extends JPanel implements Runnable{
 					
 		if(lvlActuel.getHero().isAlive()){
 			//Dessin du background
-			g.drawImage(lvlActuel.getBackground(), lvlActuel.getPosBg(), 0, 2000, 500, null, null);
+			if(lvlActuel == level4) 
+				g.drawImage(lvlActuel.getBackground(), 0, 0, 700, 500, null, null);
+			else
+				g.drawImage(lvlActuel.getBackground(), lvlActuel.getPosBg(), 0, 2000, 500, null, null);
 					
 			//Dessin du nom de l'étage
 			g.setColor(Color.BLACK);
@@ -365,6 +375,7 @@ public class Panel extends JPanel implements Runnable{
 			for(Mob m : lvlActuel.getListeMob()){
 				g.setColor(Color.RED);
 				g.fillRect((int)m.getX(), (int)m.getY(), (int)m.getWidth(), (int)m.getHeight());
+				g.drawImage(m.getImg(), (int)m.getX()-(int)m.getWidth()/2, (int)m.getY()-(int)m.getHeight()/2, (int)m.getWidth()*2, (int)m.getHeight()*2, null, null);
 			}
 			
 			//Dessin des portes : Carres Noir (vides)

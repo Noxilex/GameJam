@@ -25,15 +25,17 @@ public class Level3 extends Level{
 
 		posBg = 0;
 		
-		Mob mob1 = new Mob(10, 200, sol, initSol);
-		Mob mob2 = new Mob(10, 300, sol, initSol);
-		Mob mob3 = new Mob(10, 400, sol, initSol);
+		//Création des monstres du haut
+		for(int i = 0; i < 8; i++){
+			listeMob.add(new Mob( "faible", "verticale", 800+i*100, sol-200, 40));
+		}
 		
-		listeMob.add(mob1);
-		listeMob.add(mob2);
-		listeMob.add(mob3);
+		//Création des monstres du bas
+		for(int i = 0; i < 8; i++){
+			listeMob.add(new Mob( "faible", "verticale", 850+i*100, sol-40, 40));
+		}
 		
-		Obstacle obs1 = new Obstacle(80, sol, 10, 80);
+		Obstacle obs1 = new Obstacle(700, sol-90, 1000, 20);
 		
 		listeObstacle.add(obs1);
 		

@@ -2,6 +2,9 @@ package entities;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
 
 import main.Panel;
 
@@ -13,20 +16,14 @@ public class Mob extends Rectangle{
 	
 	protected String direction;
 	
+	protected int vie;
+	
 	//Coordonnées
 	private int initX;
 	private int initY;
 	
 	private int scrollInitX;
 	private int scrollInitY;
-	
-	public int getScrollInitX() {
-		return scrollInitX;
-	}
-
-	public void setScrollInitX(int scrollInitX) {
-		this.scrollInitX = scrollInitX;
-	}
 
 	//Deplacement
 	private int dep;
@@ -43,9 +40,22 @@ public class Mob extends Rectangle{
 	private int degats;
 
 	private boolean movable;
+
+	private BufferedImage plante;
 	
 	public Mob(String type, String direction, int x, int y, int ronde){
 		super(x, y-0, 0, 0);
+		
+		File f = null;
+		try{
+			
+			f = new File("img/plante.png");
+			plante = ImageIO.read(f);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		movable = true;
 		
 		if(type == "faible")
@@ -94,9 +104,23 @@ public class Mob extends Rectangle{
 	
 	public Mob(String type, int x, int y, int largeur, int hauteur){
 		super(x, y-hauteur, largeur, hauteur);
+		
+		File f = null;
+		try{
+			
+			f = new File("img/plante.png");
+			plante = ImageIO.read(f);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		initX = x;
 		initY = y;
 		this.type = type;
+		
+		ronde = 50;
+		vie = 40;
 		
 		if(type == "faible"){
 			degats = 3;
@@ -125,6 +149,17 @@ public class Mob extends Rectangle{
 	
 	public Mob(String type, int x, int y, BufferedImage img){
 		super(x, y-img.getHeight(), img.getWidth(), img.getHeight());
+		
+		File f = null;
+		try{
+			
+			f = new File("img/plante.png");
+			plante = ImageIO.read(f);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		this.type = type;
 		initX = x;
 		initY = y;
@@ -159,6 +194,15 @@ public class Mob extends Rectangle{
 
 	public Mob(int degats, int x, int y, int largeur) {
 		// TODO Auto-generated constructor stub
+		File f = null;
+		try{
+			
+			f = new File("img/plante.png");
+			plante = ImageIO.read(f);
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		movable = false;
 	}
 
@@ -179,7 +223,7 @@ public class Mob extends Rectangle{
 	}
 
 	public BufferedImage getImg() {
-		return img;
+		return plante;
 	}
 
 	public String getType() {
@@ -200,6 +244,14 @@ public class Mob extends Rectangle{
 	
 	public int getDistAggro(){
 		return distAggro;
+	}
+	
+	public int getScrollInitX() {
+		return scrollInitX;
+	}
+
+	public void setScrollInitX(int scrollInitX) {
+		this.scrollInitX = scrollInitX;
 	}
 	
 	public void ronde(){
@@ -243,5 +295,13 @@ public class Mob extends Rectangle{
 	public boolean isMovable() {
 		// TODO Auto-generated method stub
 		return movable;
+	}
+	
+	public void subit(int degats){
+		vie -= degats;
+	}
+	
+	public boolean isAlive(){
+		return vie > 0;
 	}
 }

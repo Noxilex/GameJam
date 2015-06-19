@@ -37,11 +37,14 @@ public class Level {
 	public void update(){
 		for(Mob mob: listeMob){
 			mob.setScrollInitX((int)mob.getInitX()+posBg);
-			/*if(mob.isPlayerNear(hero)){
-				mob.move(hero);
-			}else{
-				mob.ronde();
-			}*/
+
+			if(mob.isAlive()){
+				if(mob.isPlayerNear(hero)){
+					mob.move(hero);
+				}else{
+					mob.ronde();
+				}
+			}
 			if(mob.isMovable())
 				mob.ronde();
 		}
