@@ -1,6 +1,5 @@
 # GameJam
-Projet de GameJam 
+This project is a 2D platfomer, taking place in a highschool building.
 
-This project is a 2D platfomer, taking place in a French college.
-
-The main theme is : Nature and Technology, how will they live together ?
+## Theme 
+Nature and Technology, how will they live together ?
