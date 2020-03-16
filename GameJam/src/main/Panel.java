@@ -96,7 +96,8 @@ public class Panel extends JPanel implements Runnable{
 	private BufferedImage sourisBas;
 
 	private BufferedImage sourisHaut;
-	
+	private int nomTouche;
+
 	public Panel(String nomJoueur){
 
 		File f = null;
@@ -315,36 +316,22 @@ public class Panel extends JPanel implements Runnable{
 	
 	@SuppressWarnings("unused")
 	private boolean keyDown(){
-		if(droite || gauche || haut || bas){
-			return true;
-		}else{
-			return false;
-		}
+		return droite || gauche || haut || bas;
 	}
 	
 	private boolean keyDown(int nomTouche){
-		if(nomTouche == KeyEvent.VK_LEFT){
-			if(gauche)
-				return true;
-			else
+
+		switch (nomTouche){
+			case KeyEvent.VK_LEFT:
+				return gauche;
+			case KeyEvent.VK_RIGHT:
+				return droite;
+			case KeyEvent.VK_DOWN:
+				return bas;
+			case KeyEvent.VK_UP:
+				return haut;
+			default:
 				return false;
-		} else if(nomTouche == KeyEvent.VK_RIGHT){
-			if(droite)
-				return true;
-			else
-				return false;
-		} else if(nomTouche == KeyEvent.VK_UP){
-			if(haut)
-				return true;
-			else
-				return false;
-		} else if(nomTouche == KeyEvent.VK_DOWN){
-			if(bas)
-				return true;
-			else
-				return false;
-		} else{
-			return false;
 		}
 	}
 
