@@ -15,7 +15,7 @@ public class Level4 extends Level {
 	public Level4(Personnage p){
 		super("BOSS FIGHT", p);
 		
-		File f = new File("img/bg4.png");
+		File f = new File("img/bg1.png");
 		try {
 			bg = ImageIO.read(f);
 		} catch (IOException e) {
@@ -47,6 +47,7 @@ public class Level4 extends Level {
 		listeObstacle.add(ech6);
 		
 		inPorte = new Porte("in", 290, sol, 120, 140);
+		outPorte = new Porte("out", 0, sol, 1, 1);
 		
 		p.setLocation(250, (int)(sol-p.getHeight()));
 		

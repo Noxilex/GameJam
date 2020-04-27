@@ -15,7 +15,7 @@ public class Level3 extends Level{
 	public Level3(Personnage p){
 		super("Etage 3", p);
 		
-		File f = new File("img/bg3.png");
+		File f = new File("img/bg1.png");
 		try {
 			bg = ImageIO.read(f);
 		} catch (IOException e) {

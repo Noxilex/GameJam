@@ -283,7 +283,7 @@ public class Panel extends JPanel implements Runnable{
 				System.out.println("Porte Down");
 			}
 			//Si l'on appuie sur bas lorsqu'on est sur l'escalier de droite, on monte d'un étage
-			if(lvlActuel.intersectPorteUp() && etat < 4){
+			if(lvlActuel.intersectPorteUp() && lvlActuel.getOutPorte().isEnabled() && etat < 4){
 				etat++;
 				etageMonte = true;
 				System.out.println("Porte Up");
@@ -382,7 +382,8 @@ public class Panel extends JPanel implements Runnable{
 			//Dessin des portes : Carres Noir (vides)
 			g.setColor(Color.BLACK);
 			g.drawRect((int)lvlActuel.getInPorte().getX(), (int)lvlActuel.getInPorte().getY(), (int)lvlActuel.getInPorte().getWidth(), (int)lvlActuel.getInPorte().getHeight());
-			g.drawRect((int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY(), (int)lvlActuel.getOutPorte().getWidth(), (int)lvlActuel.getOutPorte().getHeight());
+			if(lvlActuel.getOutPorte().isEnabled())
+				g.drawRect((int)lvlActuel.getOutPorte().getX(), (int)lvlActuel.getOutPorte().getY(), (int)lvlActuel.getOutPorte().getWidth(), (int)lvlActuel.getOutPorte().getHeight());
 						
 			
 			if(lvlActuel.getHero().intersects(lvlActuel.getOutPorte())){

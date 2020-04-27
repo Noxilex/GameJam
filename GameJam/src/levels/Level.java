@@ -55,30 +55,21 @@ public class Level {
 		}
 
 		inPorte.setLocation((int)(inPorte.getInitX())+posBg, (int)inPorte.getY());
-		outPorte.setLocation((int)(outPorte.getInitX())+posBg, (int)outPorte.getY());
+		if(outPorte != null){
+			outPorte.setLocation((int)(outPorte.getInitX())+posBg, (int)outPorte.getY());
+		}
 	}
 	
 	public boolean intersectPorteDown(){
-		if(hero.intersects(inPorte)){
-			return true;
-		}else{
-			return false;
-		}
+		return hero.intersects(inPorte);
 	}
 	
 	public boolean intersectPorteUp(){
-		if(hero.intersects(outPorte)){
-			return true;
-		}else{
-			return false;
-		}
+		return hero.intersects(outPorte);
 	}
 	
 	public boolean doMobsIntersects(){
-		if(listeMobIntersects().isEmpty())
-			return false;
-		else
-			return true;
+		return !listeMobIntersects().isEmpty();
 	}
 	
 	public List<Mob> listeMobIntersects(){
